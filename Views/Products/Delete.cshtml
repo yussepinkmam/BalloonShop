@@ -1,0 +1,32 @@
+@model Product
+@{
+    ViewData["Title"] = "Удалить товар";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Удаление товара</h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Вы уверены, что хотите удалить товар <strong>«@Model.Name»</strong>?</p>
+                <dl class="row small">
+                    <dt class="col-sm-5">Тип</dt>
+                    <dd class="col-sm-7">@Model.Type</dd>
+                    <dt class="col-sm-5">Цена продажи</dt>
+                    <dd class="col-sm-7">@Model.SalePrice.ToString("N2") ₽</dd>
+                    <dt class="col-sm-5">Остаток</dt>
+                    <dd class="col-sm-7">@Model.StockQuantity шт.</dd>
+                </dl>
+                <div class="alert alert-warning small">
+                    <i class="bi bi-info-circle me-1"></i>Связанные продажи останутся в системе.
+                </div>
+                <form asp-action="Delete" method="post" class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Да, удалить</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

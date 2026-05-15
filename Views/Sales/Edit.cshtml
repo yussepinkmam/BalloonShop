@@ -1,0 +1,105 @@
+@model Sale
+@{
+    ViewData["Title"] = "Редактировать продажу";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2 text-warning"></i>Редактирование продажи №@Model.Id</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="SaleDate" class="form-label fw-semibold">Дата продажи</label>
+                        <input asp-for="SaleDate" class="form-control" type="date" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ProductId" class="form-label fw-semibold">Товар</label>
+                        <select asp-for="ProductId" class="form-select" asp-items="ViewBag.Products" id="productSelect">
+                            <option value="">— Выберите товар —</option>
+                        </select>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Цена продажи</label>
+                            <div class="input-group">
+                                <input type="text" id="salePriceDisplay" class="form-control" readonly value="@Model.Product?.SalePrice.ToString("N2")" />
+                                <span class="input-group-text">₽</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Доступно на складе</label>
+                            <div class="input-group">
+                                <input type="text" id="stockDisplay" class="form-control" readonly value="@Model.Product?.StockQuantity" />
+                                <span class="input-group-text">шт.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Quantity" class="form-label fw-semibold">Количество</label>
+                        <input asp-for="Quantity" class="form-control" type="number" min="1" id="quantityInput" />
+                        <span asp-validation-for="Quantity" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Итоговая сумма:</span>
+                            <span class="fs-4 fw-bold text-success" id="totalDisplay">@Model.TotalAmount.ToString("N2") ₽</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="EmployeeId" class="form-label fw-semibold">Кассир</label>
+                        <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.Employees">
+                            <option value="">— Выберите —</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="StoreId" class="form-label fw-semibold">Магазин</label>
+                        <select asp-for="StoreId" class="form-select" asp-items="ViewBag.Stores">
+                            <option value="">— Выберите —</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-check-lg me-1"></i>Обновить</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    let currentPrice = @(Model.Product?.SalePrice.ToString(System.Globalization.CultureInfo.InvariantCulture) ?? "0");
+
+    document.getElementById('productSelect').addEventListener('change', async function () {
+        const id = this.value;
+        if (!id) { currentPrice = 0; updateTotal(); return; }
+        const resp = await fetch(`/Products/GetPrice/${id}`);
+        const data = await resp.json();
+        currentPrice = data.salePrice;
+        document.getElementById('salePriceDisplay').value = data.salePrice.toFixed(2);
+        document.getElementById('stockDisplay').value = data.stock;
+        updateTotal();
+    });
+
+    document.getElementById('quantityInput').addEventListener('input', updateTotal);
+
+    function updateTotal() {
+        const qty = parseInt(document.getElementById('quantityInput').value) || 0;
+        document.getElementById('totalDisplay').textContent = (currentPrice * qty).toFixed(2) + ' ₽';
+    }
+</script>
+}

@@ -1,0 +1,59 @@
+@model IEnumerable<Sale>
+@{
+    ViewData["Title"] = "Продажи";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"><i class="bi bi-receipt me-2 text-primary"></i>Продажи</h2>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Новая продажа</a>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Дата</th>
+                    <th>Товар</th>
+                    <th class="text-center">Кол-во</th>
+                    <th>Кассир</th>
+                    <th>Магазин</th>
+                    <th class="text-end">Сумма</th>
+                    <th class="text-center">Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.SaleDate.ToString("dd.MM.yyyy")</td>
+                        <td>@item.Product?.Name</td>
+                        <td class="text-center">@item.Quantity</td>
+                        <td>@item.Employee?.FullName</td>
+                        <td class="text-muted small">@(item.Store?.Name ?? "—")</td>
+                        <td class="text-end fw-bold text-success">@item.TotalAmount.ToString("N2") ₽</td>
+                        <td class="text-center">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Нет записей о продажах.</td></tr>
+                }
+            </tbody>
+            @if (Model.Any())
+            {
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="5" class="text-end">Итого:</td>
+                        <td class="text-end text-success">@Model.Sum(s => s.TotalAmount).ToString("N2") ₽</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            }
+        </table>
+    </div>
+</div>

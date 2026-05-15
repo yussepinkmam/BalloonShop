@@ -1,0 +1,67 @@
+@model Employee
+@{
+    ViewData["Title"] = "Редактировать сотрудника";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-pencil me-2 text-warning"></i>Редактирование: @Model.FullName</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label fw-semibold"></label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Position" class="form-label fw-semibold"></label>
+                        <input asp-for="Position" class="form-control" />
+                        <span asp-validation-for="Position" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PaymentType" class="form-label fw-semibold">Тип оплаты</label>
+                        <select asp-for="PaymentType" class="form-select" id="paymentType"
+                            asp-items="@Html.GetEnumSelectList<PaymentType>()"></select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Rate" class="form-label fw-semibold">Ставка</label>
+                        <div class="input-group">
+                            <input asp-for="Rate" class="form-control" type="number" step="0.01" min="0.01" />
+                            <span class="input-group-text" id="rateUnit">@(Model.PaymentType == PaymentType.Percentage ? "%" : "₽")</span>
+                        </div>
+                        <span asp-validation-for="Rate" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="StoreId" class="form-label fw-semibold">Магазин</label>
+                        <select asp-for="StoreId" class="form-select" asp-items="ViewBag.Stores">
+                            <option value="">— Не выбран —</option>
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-check-lg me-1"></i>Обновить</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('paymentType').addEventListener('change', function () {
+        document.getElementById('rateUnit').textContent = this.value === '1' ? '%' : '₽';
+    });
+</script>
+}

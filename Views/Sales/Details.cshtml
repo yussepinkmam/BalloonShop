@@ -1,0 +1,36 @@
+@model Sale
+@{
+    ViewData["Title"] = "Продажа №" + Model.Id;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between">
+                <h5 class="mb-0"><i class="bi bi-receipt me-2 text-info"></i>Продажа №@Model.Id</h5>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning me-1"><i class="bi bi-pencil"></i></a>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Назад</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-5">Дата</dt>
+                    <dd class="col-sm-7">@Model.SaleDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("ru-RU"))</dd>
+                    <dt class="col-sm-5">Товар</dt>
+                    <dd class="col-sm-7">@Model.Product?.Name</dd>
+                    <dt class="col-sm-5">Количество</dt>
+                    <dd class="col-sm-7">@Model.Quantity шт.</dd>
+                    <dt class="col-sm-5">Цена за шт.</dt>
+                    <dd class="col-sm-7">@(Model.Quantity > 0 ? (Model.TotalAmount / Model.Quantity).ToString("N2") : "—") ₽</dd>
+                    <dt class="col-sm-5">Кассир</dt>
+                    <dd class="col-sm-7">@Model.Employee?.FullName</dd>
+                    <dt class="col-sm-5">Магазин</dt>
+                    <dd class="col-sm-7">@(Model.Store?.Name ?? "—")</dd>
+                    <dt class="col-sm-5">Итого</dt>
+                    <dd class="col-sm-7 fs-5 fw-bold text-success">@Model.TotalAmount.ToString("N2") ₽</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
