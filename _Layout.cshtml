@@ -9,7 +9,13 @@
     <style>
         body { background-color: #f8f9fa; }
         .navbar-brand { font-weight: 700; font-size: 1.3rem; }
-        .sidebar { min-height: calc(100vh - 56px); background: #fff; border-right: 1px solid #dee2e6; }
+        .sidebar {
+            min-height: calc(100vh - 56px);
+            background: #fff;
+            border-right: 1px solid #dee2e6;
+            position: sticky;
+            top: 56px;
+        }
         .sidebar .nav-link { color: #495057; border-radius: 6px; margin-bottom: 2px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #e9ecef; color: #0d6efd; }
         .sidebar .nav-link i { width: 20px; }
@@ -23,12 +29,13 @@
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container-fluid">
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container">
         <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-            🎈 Сеть магазинов «Шары»
+            🎈 Шары
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar">
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -41,20 +48,16 @@
     </div>
 </nav>
 
-<div class="container-fluid">
+<div class="container">
     <div class="row">
-        <!-- Sidebar (offcanvas on mobile) -->
-        <nav class="col-md-3 col-lg-2 d-md-block sidebar py-3 px-2 offcanvas-md offcanvas-start" id="sidebar" tabindex="-1" aria-labelledby="sidebarLabel">
-            <div class="offcanvas-header d-md-none">
-                <h5 class="offcanvas-title" id="sidebarLabel">Меню</h5>
-                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
-            </div>
-            <div class="position-sticky">
+        <!-- Sidebar (offcanvas on mobile, fixed on desktop) -->
+        <div class="col-md-3 d-none d-md-block">
+            <nav class="sidebar py-3 px-2">
                 <p class="text-muted small fw-bold px-2 mb-1">КАТАЛОГ</p>
                 <ul class="nav flex-column mb-3">
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
-                            <i class="bi bi-balloon"></i> Товары (шары)
+                            <i class="bi bi-balloon"></i> Товары
                         </a>
                     </li>
                     <li class="nav-item">
@@ -84,11 +87,55 @@
                         </a>
                     </li>
                 </ul>
+            </nav>
+        </div>
+
+        <!-- Offcanvas sidebar for mobile -->
+        <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebar" aria-labelledby="sidebarLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="sidebarLabel">Меню</h5>
+                <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Закрыть"></button>
             </div>
-        </nav>
+            <div class="offcanvas-body">
+                <p class="text-muted small fw-bold mb-1">КАТАЛОГ</p>
+                <ul class="nav flex-column mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-balloon"></i> Товары
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stores" ? "active" : "")" asp-controller="Stores" asp-action="Index" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-shop"></i> Магазины
+                        </a>
+                    </li>
+                </ul>
+                <p class="text-muted small fw-bold mb-1">УЧЁТ</p>
+                <ul class="nav flex-column mb-3">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-receipt"></i> Продажи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")" asp-controller="Employees" asp-action="Index" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-people"></i> Сотрудники
+                        </a>
+                    </li>
+                </ul>
+                <p class="text-muted small fw-bold mb-1">ФИНАНСЫ</p>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Salary" ? "active" : "")" asp-controller="Salary" asp-action="Index" data-bs-dismiss="offcanvas">
+                            <i class="bi bi-calculator"></i> Расчёт зарплаты
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
 
         <!-- Main content -->
-        <main class="col-md-9 col-lg-10 py-3 px-4">
+        <main class="col-md-9 py-3 px-3 px-md-4">
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
