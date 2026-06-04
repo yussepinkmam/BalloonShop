@@ -4,22 +4,21 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0"><i class="bi bi-balloon me-2 text-primary"></i>Товары (шары)</h2>
-    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Добавить товар</a>
+    <h2 class="mb-0 fs-4 fs-md-3"><i class="bi bi-balloon me-2 text-primary"></i>Товары (шары)</h2>
+    <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Добавить</a>
 </div>
 
 <div class="card">
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 small">
             <thead class="table-light">
                 <tr>
                     <th>Название</th>
                     <th>Тип</th>
-                    <th class="text-end">Цена закупки</th>
+                    <th class="text-end d-none d-sm-table-cell">Цена закупки</th>
                     <th class="text-end">Цена продажи</th>
                     <th class="text-center">Остаток</th>
-                    <th>Магазин</th>
+                    <th class="d-none d-sm-table-cell">Магазин</th>
                     <th class="text-center">Действия</th>
                 </tr>
             </thead>
@@ -38,8 +37,8 @@
                             }
                             <span class="badge @typeBadge.Item1">@typeBadge.Item2</span>
                         </td>
-                        <td class="text-end">@item.PurchasePrice.ToString("N2") ₽</td>
-                        <td class="text-end fw-bold text-success">@item.SalePrice.ToString("N2") ₽</td>
+                        <td class="text-end d-none d-sm-table-cell">@item.PurchasePrice.ToString("N2")</td>
+                        <td class="text-end fw-bold text-success">@item.SalePrice.ToString("N2")</td>
                         <td class="text-center">
                             @if (item.StockQuantity < 10)
                             {
@@ -50,11 +49,11 @@
                                 <span class="badge bg-secondary">@item.StockQuantity</span>
                             }
                         </td>
-                        <td>@(item.Store?.Name ?? "—")</td>
+                        <td class="d-none d-sm-table-cell">@(item.Store?.Name ?? "—")</td>
                         <td class="text-center">
-                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Подробнее"><i class="bi bi-eye"></i></a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Редактировать"><i class="bi bi-pencil"></i></a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Удалить"><i class="bi bi-trash"></i></a>
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info py-0 px-1" title="Подробнее"><i class="bi bi-eye"></i></a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1" title="Редактировать"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить"><i class="bi bi-trash"></i></a>
                         </td>
                     </tr>
                 }
@@ -64,6 +63,5 @@
                 }
             </tbody>
         </table>
-        </div>
     </div>
 </div>
