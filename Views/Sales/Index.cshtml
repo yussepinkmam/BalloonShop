@@ -4,20 +4,20 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0 fs-4 fs-md-3"><i class="bi bi-receipt me-2 text-primary"></i>Продажи</h2>
+    <h2 class="mb-0 fs-4"><i class="bi bi-receipt me-2 text-primary"></i>Продажи</h2>
     <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Новая</a>
 </div>
 
-<div class="card">
+<div class="card d-none d-md-block">
     <div class="card-body p-0">
         <table class="table table-hover align-middle mb-0 small">
             <thead class="table-light">
                 <tr>
                     <th>Дата</th>
-                    <th class="d-none d-sm-table-cell">Товар</th>
+                    <th>Товар</th>
                     <th class="text-center">Кол-во</th>
-                    <th class="d-none d-sm-table-cell">Кассир</th>
-                    <th class="d-none d-md-table-cell">Магазин</th>
+                    <th>Кассир</th>
+                    <th>Магазин</th>
                     <th class="text-end">Сумма</th>
                     <th class="text-center">Действия</th>
                 </tr>
@@ -27,10 +27,10 @@
                 {
                     <tr>
                         <td class="small">@item.SaleDate.ToString("dd.MM")</td>
-                        <td class="d-none d-sm-table-cell">@item.Product?.Name</td>
+                        <td>@item.Product?.Name</td>
                         <td class="text-center">@item.Quantity</td>
-                        <td class="d-none d-sm-table-cell">@item.Employee?.FullName</td>
-                        <td class="d-none d-md-table-cell text-muted small">@(item.Store?.Name ?? "—")</td>
+                        <td>@item.Employee?.FullName</td>
+                        <td class="text-muted small">@(item.Store?.Name ?? "—")</td>
                         <td class="text-end fw-bold text-success small">@item.TotalAmount.ToString("N2")</td>
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info py-0 px-1"><i class="bi bi-eye"></i></a>
@@ -48,13 +48,57 @@
             {
                 <tfoot class="table-light fw-bold">
                     <tr>
-                        <td colspan="4" class="text-end d-none d-sm-table-cell">Итого:</td>
-                        <td class="text-end d-sm-none">Итого:</td>
+                        <td colspan="6" class="text-end">Итого:</td>
                         <td class="text-end text-success">@Model.Sum(s => s.TotalAmount).ToString("N2")</td>
-                        <td></td>
                     </tr>
                 </tfoot>
             }
         </table>
     </div>
+</div>
+
+<div class="d-md-none row g-2">
+    @foreach (var item in Model)
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2 px-3">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-semibold small">@item.SaleDate.ToString("dd.MM.yyyy")</div>
+                            <div class="text-muted small">@item.Product?.Name</div>
+                            <div class="text-muted small"><i class="bi bi-person me-1"></i>@item.Employee?.FullName</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold text-success">@item.TotalAmount.ToString("N2") ₽</div>
+                            <span class="badge bg-secondary">×@item.Quantity</span>
+                        </div>
+                    </div>
+                    <div class="text-muted small mt-1">
+                        <i class="bi bi-shop me-1"></i>@(item.Store?.Name ?? "—")
+                    </div>
+                    <div class="text-end mt-2">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info py-0 px-1"><i class="bi bi-eye"></i></a>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1"><i class="bi bi-pencil"></i></a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1"><i class="bi bi-trash"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center text-muted py-4">Нет записей о продажах.</div>
+    }
+    @if (Model.Any())
+    {
+        <div class="col-12">
+            <div class="card bg-light">
+                <div class="card-body py-2 px-3 d-flex justify-content-between">
+                    <span class="fw-bold">Итого:</span>
+                    <span class="fw-bold text-success">@Model.Sum(s => s.TotalAmount).ToString("N2") ₽</span>
+                </div>
+            </div>
+        </div>
+    }
 </div>
