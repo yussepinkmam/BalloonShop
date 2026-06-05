@@ -1,37 +1,53 @@
 using BalloonShop.Data;
 using BalloonShop.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace BalloonShop.Controllers;
 
+[Authorize]
 public class SalesController : Controller
 {
     private readonly AppDbContext _context;
+    private readonly UserManager<AppUser> _userManager;
 
-    public SalesController(AppDbContext context)
+    public SalesController(AppDbContext context, UserManager<AppUser> userManager)
     {
         _context = context;
+        _userManager = userManager;
     }
 
     public async Task<IActionResult> Index()
     {
-        var sales = await _context.Sales
+        var user = await _userManager.GetUserAsync(User);
+        var query = _context.Sales
             .Include(s => s.Product)
             .Include(s => s.Employee)
             .Include(s => s.Store)
-            .OrderByDescending(s => s.SaleDate)
-            .ToListAsync();
-        return View(sales);
+            .AsQueryable();
+
+        // Seller sees only their own sales
+        if (!User.IsInRole("Admin") && user?.EmployeeId != null)
+            query = query.Where(s => s.EmployeeId == user.EmployeeId);
+
+        return View(await query.OrderByDescending(s => s.SaleDate).ToListAsync());
     }
 
     public async Task<IActionResult> Details(int id)
     {
+        var user = await _userManager.GetUserAsync(User);
         var sale = await _context.Sales
             .Include(s => s.Product).Include(s => s.Employee).Include(s => s.Store)
             .FirstOrDefaultAsync(s => s.Id == id);
         if (sale == null) return NotFound();
+
+        // Seller can only view their own sales
+        if (!User.IsInRole("Admin") && user?.EmployeeId != sale.EmployeeId)
+            return Forbid();
+
         return View(sale);
     }
 
@@ -57,6 +73,11 @@ public class SalesController : Controller
 
         if (ModelState.IsValid && product != null)
         {
+            // Auto-set employee for seller users
+            var user = await _userManager.GetUserAsync(User);
+            if (!User.IsInRole("Admin") && user?.EmployeeId != null)
+                sale.EmployeeId = user.EmployeeId.Value;
+
             sale.TotalAmount = product.SalePrice * sale.Quantity;
             product.StockQuantity -= sale.Quantity;
 
@@ -71,6 +92,7 @@ public class SalesController : Controller
         return View(sale);
     }
 
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id)
     {
         var sale = await _context.Sales.FindAsync(id);
@@ -81,6 +103,7 @@ public class SalesController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Edit(int id, Sale sale)
     {
         if (id != sale.Id) return NotFound();
@@ -94,7 +117,6 @@ public class SalesController : Controller
         }
         else if (originalSale != null)
         {
-            // Return old quantity to stock, then check new quantity
             int adjustedStock = product.StockQuantity + (originalSale.ProductId == sale.ProductId ? originalSale.Quantity : 0);
             if (adjustedStock < sale.Quantity)
             {
@@ -104,7 +126,6 @@ public class SalesController : Controller
 
         if (ModelState.IsValid && product != null && originalSale != null)
         {
-            // Restore old product stock if product changed
             if (originalSale.ProductId != sale.ProductId)
             {
                 var oldProduct = await _context.Products.FindAsync(originalSale.ProductId);
@@ -132,6 +153,7 @@ public class SalesController : Controller
         return View(sale);
     }
 
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var sale = await _context.Sales
@@ -143,12 +165,12 @@ public class SalesController : Controller
 
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
         var sale = await _context.Sales.Include(s => s.Product).FirstOrDefaultAsync(s => s.Id == id);
         if (sale != null)
         {
-            // Restore stock
             if (sale.Product != null)
             {
                 sale.Product.StockQuantity += sale.Quantity;

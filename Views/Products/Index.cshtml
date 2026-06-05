@@ -4,9 +4,26 @@
 }
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0 fs-4"><i class="bi bi-balloon me-2 text-primary"></i>Товары (шары)</h2>
-    <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Добавить</a>
+    <h2 class="mb-0 fs-4"><i class="bi bi-balloon me-2 text-primary"></i>@(User.IsInRole("Admin") ? "Товары" : "Каталог товаров")</h2>
+    <div>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Добавить</a>
+        }
+    </div>
 </div>
+
+<!-- Search / filter -->
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="search" class="form-control" placeholder="Поиск по названию или категории..." value="@ViewBag.Search" />
+        <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search"></i></button>
+        @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+        {
+            <a asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+        }
+    </div>
+</form>
 
 <div class="card d-none d-md-block">
     <div class="card-body p-0">
@@ -14,12 +31,19 @@
             <thead class="table-light">
                 <tr>
                     <th>Название</th>
-                    <th>Тип</th>
+                    <th>Категория</th>
                     <th class="text-end">Цена закупки</th>
                     <th class="text-end">Цена продажи</th>
                     <th class="text-center">Остаток</th>
                     <th>Магазин</th>
-                    <th class="text-center">Действия</th>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <th class="text-center">Действия</th>
+                    }
+                    else
+                    {
+                        <th class="text-center"></th>
+                    }
                 </tr>
             </thead>
             <tbody>
@@ -27,16 +51,7 @@
                 {
                     <tr>
                         <td class="fw-semibold">@item.Name</td>
-                        <td>
-                            @{
-                                var typeBadge = item.Type switch {
-                                    BalloonType.Latex => ("bg-success", "Латексный"),
-                                    BalloonType.Foil => ("bg-primary", "Фольгированный"),
-                                    _ => ("bg-warning text-dark", "С рисунком")
-                                };
-                            }
-                            <span class="badge @typeBadge.Item1">@typeBadge.Item2</span>
-                        </td>
+                        <td><span class="badge bg-secondary">@(item.Category?.Name ?? "—")</span></td>
                         <td class="text-end">@item.PurchasePrice.ToString("N2")</td>
                         <td class="text-end fw-bold text-success">@item.SalePrice.ToString("N2")</td>
                         <td class="text-center">
@@ -52,14 +67,17 @@
                         <td>@(item.Store?.Name ?? "—")</td>
                         <td class="text-center">
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info py-0 px-1" title="Подробнее"><i class="bi bi-eye"></i></a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1" title="Редактировать"><i class="bi bi-pencil"></i></a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить"><i class="bi bi-trash"></i></a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1" title="Редактировать"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1" title="Удалить"><i class="bi bi-trash"></i></a>
+                            }
                         </td>
                     </tr>
                 }
                 @if (!Model.Any())
                 {
-                    <tr><td colspan="7" class="text-center text-muted py-4">Товары не найдены. <a asp-action="Create">Добавьте первый товар</a>.</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-4">Товары не найдены.</td></tr>
                 }
             </tbody>
         </table>
@@ -75,15 +93,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h6 class="mb-1">@item.Name</h6>
-                            <span class="badge @(item.Type switch {
-                                BalloonType.Latex => "bg-success",
-                                BalloonType.Foil => "bg-primary",
-                                _ => "bg-warning text-dark"
-                            }) me-2">@(item.Type switch {
-                                BalloonType.Latex => "Латексный",
-                                BalloonType.Foil => "Фольгированный",
-                                _ => "С рисунком"
-                            })</span>
+                            <span class="badge bg-secondary me-2">@(item.Category?.Name ?? "—")</span>
                             <span class="text-muted small">@(item.Store?.Name ?? "—")</span>
                         </div>
                         <div class="text-end">
@@ -104,8 +114,11 @@
                         </div>
                         <div>
                             <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info py-0 px-1"><i class="bi bi-eye"></i></a>
-                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1"><i class="bi bi-pencil"></i></a>
-                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1"><i class="bi bi-trash"></i></a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning py-0 px-1"><i class="bi bi-pencil"></i></a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger py-0 px-1"><i class="bi bi-trash"></i></a>
+                            }
                         </div>
                     </div>
                 </div>
@@ -114,6 +127,6 @@
     }
     @if (!Model.Any())
     {
-        <div class="col-12 text-center text-muted py-4">Товары не найдены. <a asp-action="Create">Добавьте первый товар</a>.</div>
+        <div class="col-12 text-center text-muted py-4">Товары не найдены.</div>
     }
 </div>

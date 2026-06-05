@@ -21,9 +21,10 @@
                     </div>
 
                     <div class="mb-3">
-                        <label asp-for="Type" class="form-label fw-semibold">Тип шара</label>
-                        <select asp-for="Type" class="form-select"
-                            asp-items="@Html.GetEnumSelectList<BalloonType>()"></select>
+                        <label asp-for="CategoryId" class="form-label fw-semibold">Категория</label>
+                        <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories">
+                            <option value="">— Выберите категорию —</option>
+                        </select>
                     </div>
 
                     <div class="row g-3 mb-3">

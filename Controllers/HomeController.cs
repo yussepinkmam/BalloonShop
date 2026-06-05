@@ -1,17 +1,16 @@
 using BalloonShop.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BalloonShop.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class HomeController : Controller
 {
     private readonly AppDbContext _context;
 
-    public HomeController(AppDbContext context)
-    {
-        _context = context;
-    }
+    public HomeController(AppDbContext context) => _context = context;
 
     public async Task<IActionResult> Index()
     {

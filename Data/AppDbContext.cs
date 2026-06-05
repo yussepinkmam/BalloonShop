@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using BalloonShop.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace BalloonShop.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -11,10 +12,18 @@ public class AppDbContext : DbContext
     public DbSet<Sale> Sales { get; set; }
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Store> Stores { get; set; }
+    public DbSet<Category> Categories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        // Seed categories
+        modelBuilder.Entity<Category>().HasData(
+            new Category { Id = 1, Name = "Латексные", DisplayOrder = 1 },
+            new Category { Id = 2, Name = "Фольгированные", DisplayOrder = 2 },
+            new Category { Id = 3, Name = "С рисунком", DisplayOrder = 3 }
+        );
 
         // Seed stores
         modelBuilder.Entity<Store>().HasData(
@@ -29,13 +38,13 @@ public class AppDbContext : DbContext
             new Employee { Id = 3, FullName = "Сидорова Елена Юрьевна", Position = "Старший кассир", PaymentType = PaymentType.Salary, Rate = 45000, StoreId = 2 }
         );
 
-        // Seed products
+        // Seed products (with CategoryId)
         modelBuilder.Entity<Product>().HasData(
-            new Product { Id = 1, Name = "Шар красный латексный 12\"", Type = BalloonType.Latex, PurchasePrice = 15, SalePrice = 35, StockQuantity = 200, StoreId = 1 },
-            new Product { Id = 2, Name = "Шар фольгированный Звезда", Type = BalloonType.Foil, PurchasePrice = 80, SalePrice = 180, StockQuantity = 50, StoreId = 1 },
-            new Product { Id = 3, Name = "Шар с рисунком «С Днём Рождения»", Type = BalloonType.Printed, PurchasePrice = 60, SalePrice = 150, StockQuantity = 75, StoreId = 2 },
-            new Product { Id = 4, Name = "Шар синий латексный 10\"", Type = BalloonType.Latex, PurchasePrice = 12, SalePrice = 30, StockQuantity = 300, StoreId = 2 },
-            new Product { Id = 5, Name = "Шар фольгированный Сердце", Type = BalloonType.Foil, PurchasePrice = 90, SalePrice = 200, StockQuantity = 40, StoreId = 1 }
+            new Product { Id = 1, Name = "Шар красный латексный 12\"", CategoryId = 1, PurchasePrice = 15, SalePrice = 35, StockQuantity = 200, StoreId = 1 },
+            new Product { Id = 2, Name = "Шар фольгированный Звезда", CategoryId = 2, PurchasePrice = 80, SalePrice = 180, StockQuantity = 50, StoreId = 1 },
+            new Product { Id = 3, Name = "Шар с рисунком «С Днём Рождения»", CategoryId = 3, PurchasePrice = 60, SalePrice = 150, StockQuantity = 75, StoreId = 2 },
+            new Product { Id = 4, Name = "Шар синий латексный 10\"", CategoryId = 1, PurchasePrice = 12, SalePrice = 30, StockQuantity = 300, StoreId = 2 },
+            new Product { Id = 5, Name = "Шар фольгированный Сердце", CategoryId = 2, PurchasePrice = 90, SalePrice = 200, StockQuantity = 40, StoreId = 1 }
         );
 
         // Seed sales
@@ -47,5 +56,12 @@ public class AppDbContext : DbContext
             new Sale { Id = 5, SaleDate = DateTime.Today.AddDays(-3), ProductId = 4, Quantity = 20, EmployeeId = 3, StoreId = 2, TotalAmount = 600 },
             new Sale { Id = 6, SaleDate = DateTime.Today.AddDays(-1), ProductId = 1, Quantity = 15, EmployeeId = 2, StoreId = 1, TotalAmount = 525 }
         );
+
+        // Configure AppUser - Employee relationship
+        modelBuilder.Entity<AppUser>()
+            .HasOne(u => u.Employee)
+            .WithMany()
+            .HasForeignKey(u => u.EmployeeId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

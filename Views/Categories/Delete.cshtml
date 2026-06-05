@@ -1,0 +1,26 @@
+@model Category
+@{ ViewData["Title"] = "Удалить категорию"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white"><h5 class="mb-0"><i class="bi bi-exclamation-triangle me-2"></i>Удалить категорию</h5></div>
+            <div class="card-body text-center">
+                <p class="fs-5">Вы уверены, что хотите удалить категорию <strong>@Model.Name</strong>?</p>
+                @if (Model.Products.Any())
+                {
+                    <div class="alert alert-warning">Нельзя удалить категорию, к которой привязаны товары.</div>
+                    <a asp-action="Index" class="btn btn-outline-secondary">Назад</a>
+                }
+                else
+                {
+                    <form asp-action="Delete" method="post">
+                        <input asp-for="Id" type="hidden" />
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">Отмена</a>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -9,10 +9,7 @@
     <style>
         body { background-color: #f8f9fa; overflow-x: hidden; }
         .navbar-brand { font-weight: 700; font-size: 1.3rem; }
-        .sidebar {
-            background: #fff;
-            border-right: 1px solid #dee2e6;
-        }
+        .sidebar { background: #fff; border-right: 1px solid #dee2e6; }
         .sidebar .nav-link { color: #495057; border-radius: 6px; margin-bottom: 2px; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #e9ecef; color: #0d6efd; }
         .sidebar .nav-link i { width: 20px; }
@@ -26,62 +23,84 @@
     </style>
 </head>
 <body>
+@{ var authed = User.Identity?.IsAuthenticated == true; }
 
 <nav class="navbar navbar-dark bg-primary sticky-top py-1">
     <div class="container">
         <a class="navbar-brand py-0" asp-controller="Home" asp-action="Index">🎈 Шары</a>
-        <button class="navbar-toggler border-0 py-1 d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMobile">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        @if (authed)
+        {
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-white-50 small d-none d-sm-inline">
+                    @User.Identity.Name
+                    @if (User.IsInRole("Admin")) { <span class="badge bg-warning text-dark ms-1">Админ</span> }
+                </span>
+                <form asp-controller="Account" asp-action="Logout" method="post" class="m-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-sm btn-outline-light border-0"><i class="bi bi-box-arrow-right"></i></button>
+                </form>
+                <button class="navbar-toggler border-0 py-1 d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMobile">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+            </div>
+        }
     </div>
 </nav>
 
 <div class="container mt-2">
     <div class="row g-2">
-        <!-- Sidebar (desktop: always visible, mobile: collapsible) -->
-        <div class="col-md-3">
-            <div class="collapse d-md-block" id="sidebarMobile">
-                <div class="sidebar card card-body py-2 px-2">
-                    <p class="text-muted small fw-bold px-2 mb-1 mt-1">КАТАЛОГ</p>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index">
-                                <i class="bi bi-balloon"></i> Товары
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stores" ? "active" : "")" asp-controller="Stores" asp-action="Index">
-                                <i class="bi bi-shop"></i> Магазины
-                            </a>
-                        </li>
-                    </ul>
-                    <p class="text-muted small fw-bold px-2 mb-1">УЧЁТ</p>
-                    <ul class="nav flex-column mb-2">
-                        <li class="nav-item">
-                            <a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index">
-                                <i class="bi bi-receipt"></i> Продажи
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")" asp-controller="Employees" asp-action="Index">
-                                <i class="bi bi-people"></i> Сотрудники
-                            </a>
-                        </li>
-                    </ul>
-                    <p class="text-muted small fw-bold px-2 mb-1">ФИНАНСЫ</p>
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Salary" ? "active" : "")" asp-controller="Salary" asp-action="Index">
-                                <i class="bi bi-calculator"></i> Расчёт зарплаты
-                            </a>
-                        </li>
-                    </ul>
+        @if (authed)
+        {
+            <div class="col-md-3">
+                <div class="collapse d-md-block" id="sidebarMobile">
+                    <div class="sidebar card card-body py-2 px-2">
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <p class="text-muted small fw-bold px-2 mb-1 mt-1">ПАНЕЛЬ УПРАВЛЕНИЯ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index"><i class="bi bi-speedometer2"></i> Дашборд</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">ТОВАРЫ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index"><i class="bi bi-balloon"></i> Товары</a></li>
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Categories" ? "active" : "")" asp-controller="Categories" asp-action="Index"><i class="bi bi-tags"></i> Категории товаров</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">МАГАЗИНЫ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stores" ? "active" : "")" asp-controller="Stores" asp-action="Index"><i class="bi bi-shop"></i> Магазины</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">ПРОДАЖИ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" ? "active" : "")" asp-controller="Sales" asp-action="Index"><i class="bi bi-receipt"></i> Продажи</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">СОТРУДНИКИ</p>
+                            <ul class="nav flex-column">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Employees" ? "active" : "")" asp-controller="Employees" asp-action="Index"><i class="bi bi-people"></i> Сотрудники</a></li>
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Salary" ? "active" : "")" asp-controller="Salary" asp-action="Index"><i class="bi bi-calculator"></i> Расчёт зарплаты</a></li>
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted small fw-bold px-2 mb-1 mt-1">КАТАЛОГ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Products" ? "active" : "")" asp-controller="Products" asp-action="Index"><i class="bi bi-balloon"></i> Товары</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">ПРОДАЖИ</p>
+                            <ul class="nav flex-column mb-2">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Sales" && ViewContext.RouteData.Values["action"]?.ToString() != "Create" ? "active" : "")" asp-controller="Sales" asp-action="Index"><i class="bi bi-clock-history"></i> История продаж</a></li>
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "active" : "")" asp-controller="Sales" asp-action="Create"><i class="bi bi-plus-circle"></i> Оформить продажу</a></li>
+                            </ul>
+                            <p class="text-muted small fw-bold px-2 mb-1">ЗАРПЛАТА</p>
+                            <ul class="nav flex-column">
+                                <li class="nav-item"><a class="nav-link py-1 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Salary" ? "active" : "")" asp-controller="Salary" asp-action="Index"><i class="bi bi-calculator"></i> Моя зарплата</a></li>
+                            </ul>
+                        }
+                    </div>
                 </div>
             </div>
-        </div>
+        }
 
-        <!-- Main content -->
-        <main class="col-md-9 py-0">
+        <main class="@(authed ? "col-md-9" : "col-12") py-0">
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success alert-dismissible fade show" role="alert">

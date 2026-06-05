@@ -1,0 +1,51 @@
+@model IEnumerable<Category>
+@{ ViewData["Title"] = "Категории товаров"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0 fs-4"><i class="bi bi-tags me-2 text-primary"></i>Категории товаров</h2>
+    <a asp-action="Create" class="btn btn-primary btn-sm"><i class="bi bi-plus-circle me-1"></i>Добавить</a>
+</div>
+
+<div class="card d-none d-md-block">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="table-light">
+                <tr><th>Название</th><th class="text-center">Порядок</th><th class="text-center">Товаров</th><th class="text-center">Действия</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in Model)
+                {
+                    <tr>
+                        <td class="fw-semibold">@cat.Name</td>
+                        <td class="text-center">@cat.DisplayOrder</td>
+                        <td class="text-center">@cat.Products.Count</td>
+                        <td class="text-center">
+                            <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-sm btn-outline-warning py-0 px-1"><i class="bi bi-pencil"></i></a>
+                            <a asp-action="Delete" asp-route-id="@cat.Id" class="btn btn-sm btn-outline-danger py-0 px-1"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="d-md-none row g-2">
+    @foreach (var cat in Model)
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body py-2 px-3 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="mb-0">@cat.Name</h6>
+                        <small class="text-muted">порядок: @cat.DisplayOrder · @cat.Products.Count товаров</small>
+                    </div>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@cat.Id" class="btn btn-sm btn-outline-warning py-0 px-1"><i class="bi bi-pencil"></i></a>
+                        <a asp-action="Delete" asp-route-id="@cat.Id" class="btn btn-sm btn-outline-danger py-0 px-1"><i class="bi bi-trash"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

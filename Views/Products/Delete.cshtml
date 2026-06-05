@@ -12,8 +12,8 @@
             <div class="card-body">
                 <p class="mb-3">Вы уверены, что хотите удалить товар <strong>«@Model.Name»</strong>?</p>
                 <dl class="row small">
-                    <dt class="col-sm-5">Тип</dt>
-                    <dd class="col-sm-7">@Model.Type</dd>
+                    <dt class="col-sm-5">Категория</dt>
+                    <dd class="col-sm-7">@(Model.Category?.Name ?? "—")</dd>
                     <dt class="col-sm-5">Цена продажи</dt>
                     <dd class="col-sm-7">@Model.SalePrice.ToString("N2") ₽</dd>
                     <dt class="col-sm-5">Остаток</dt>

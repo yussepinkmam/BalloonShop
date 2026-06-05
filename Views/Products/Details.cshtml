@@ -9,9 +9,12 @@
             <div class="card-header bg-white d-flex justify-content-between flex-wrap gap-2">
                 <h5 class="mb-0"><i class="bi bi-balloon me-2 text-info"></i>@Model.Name</h5>
                 <div>
-                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning me-1">
-                        <i class="bi bi-pencil me-1"></i>Изменить
-                    </a>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-sm btn-warning me-1">
+                            <i class="bi bi-pencil me-1"></i>Изменить
+                        </a>
+                    }
                     <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Назад</a>
                 </div>
             </div>
@@ -19,17 +22,8 @@
                 <dl class="row">
                     <dt class="col-sm-5">Название</dt>
                     <dd class="col-sm-7">@Model.Name</dd>
-                    <dt class="col-sm-5">Тип</dt>
-                    <dd class="col-sm-7">
-                        @{
-                            var typeName = Model.Type switch {
-                                BalloonType.Latex => "Латексный",
-                                BalloonType.Foil => "Фольгированный",
-                                _ => "С рисунком"
-                            };
-                        }
-                        @typeName
-                    </dd>
+                    <dt class="col-sm-5">Категория</dt>
+                    <dd class="col-sm-7"><span class="badge bg-secondary">@(Model.Category?.Name ?? "—")</span></dd>
                     <dt class="col-sm-5">Цена закупки</dt>
                     <dd class="col-sm-7">@Model.PurchasePrice.ToString("N2") ₽</dd>
                     <dt class="col-sm-5">Цена продажи</dt>
